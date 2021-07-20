@@ -1,0 +1,45 @@
+fetch.py
+	- this module will read from fetch_config.py: symbol, dateStart, dateEnd, timeframe
+	- limit of 10000 bars can be requested at once, so if dateStart, dateEnd and timeframe demand more than 10000 bars, then multiple requests should be made
+	- creates a single array of all bars requested
+	- prints that array into a json file
+
+analysis.py
+	- reads array from json file produced by fetch.py
+	- each bar object looks like this:
+	{
+      		"t": "2020-01-02T05:00:00Z",
+      		"o": 296.24,
+      		"h": 300.6,
+      		"l": 295.19,
+      		"c": 300.35,
+      		"v": 33920004
+    	}
+	- this class will keep track of its current index in the array
+	- run through the entirety of the data array, and add to each object the desired indicators like so:
+	{
+      		"t": "2020-01-02T05:00:00Z",
+      		"o": 296.24,
+      		"h": 300.6,
+      		"l": 295.19,
+      		"c": 300.35,
+      		"v": 33920004
+		"SMA5": 283.4,
+		"EMA5": 301.4
+		"RSI": 0.0
+		""....... and so on
+    	}
+	- finished array will be writtin to a json file
+	- this finished array will be the input to the backtest.py module
+
+backtest.py
+	- reads array from json file produced by analysis.py
+	- this class contains functions that are used by strategy to make trades
+		- functions include: buy, sell, crossesOver, aboveValue, belowValue, etc...
+	- this class will have a currentIndex which represents the backtests place in the array, but it will be updated each time by the loop in run_backtest.py
+
+run_backtest.py
+	- this is where the main loop of the backtest algo will be
+	- it will create the backtest object, get the length of the array from it, and then start a loop going from 0 to that array size
+	- it will pass this array size back to the backtest.py each update, resetting its currentIndex
+	- it will then call the algo strategy imported from another file, passing it the backtest module
