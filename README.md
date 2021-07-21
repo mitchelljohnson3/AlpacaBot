@@ -1,2 +1,0 @@
-# AlpacaBot
-alpaca trading bot
