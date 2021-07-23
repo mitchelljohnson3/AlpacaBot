@@ -7,8 +7,11 @@ import file_io as io # file_io lets us write and read to files
 
 class fetch():
     def __init__(self):
-        self.PARAMETERS = { 'start': DATE_START, 'end': DATE_END, 'limit': LIMIT, 'timeframe': TIME_FRAME }
+        self.ADJUSTED_DATE_START = DATE_START + "T09:30:00+00:00" # market opens at 9:30am EST
+        self.ADJUSTED_DATE_END = DATE_END + "T17:30:00+00:00" # market closes at 4:30pm EST
+        self.PARAMETERS = { 'start': self.ADJUSTED_DATE_START, 'end': self.ADJUSTED_DATE_END, 'limit': LIMIT, 'timeframe': TIME_FRAME }
         self.FULL_VALID_SYMBOLS = SYMBOLS_TO_TEST
+
     def get_symbol_data(self, symbol):
         BARS_URL = '{}/v2/stocks/{}/bars'.format(DATA_URL, symbol) # formatting url to fetch data from api
         r = requests.get(BARS_URL, params=self.PARAMETERS, headers=HEADERS) # make the api request
@@ -28,21 +31,28 @@ class fetch():
             master_data['bars'] = appended_bars # update bars in master object
             if (previous_data['next_page_token'] is None): keep_going = False # if there is no more to gather, end loop
         return master_data # return the master object
-
+    
     def output_raw_data(self, raw_symbol_data, file_names):
         for i in range(len(file_names)):
             path = './raw_symbol_data/{}'.format(file_names[i]) # get path to output file
-            io.writeJSON(path, raw_symbol_data[i]) # write to file in raw_symbol_data folder
-
+            io.writeToFile(path, "Date,Open,High,Low,Close,Volume") # write header to file
+            self.write_json_to_csv(path, raw_symbol_data[i]['bars']) # write to file in raw_symbol_data folder
+    
+    def write_json_to_csv(self, path, bar_data):
+        for bar in bar_data:
+            f_date = bar['t'].split('T')[0] # remove time stamp from date
+            formatted_data = '{},{},{},{},{},{}'.format(f_date, bar['o'], bar['h'], bar['l'], bar['c'], bar['v']) # convert dict to csv string
+            io.appendToFile(path, formatted_data) # append to file
+    
     def get_file_names(self, symbol_list):
         file_names = [] # empty list to hold all file names
         for symbol in symbol_list:
             date_start = DATE_START.split('T')[0]
             date_end = DATE_END.split('T')[0]
-            file_name = '{}%{}%{}%{}.json'.format(symbol, TIME_FRAME, date_start, date_end) # construct new file name
+            file_name = '{}%{}%{}%{}.csv'.format(symbol, TIME_FRAME, date_start, date_end) # construct new file name
             file_names.append(file_name) # append new file name to list
         return file_names # return list of file names
-
+    
     def run(self):
         file_names = self.get_file_names(SYMBOLS_TO_TEST) # get all filenames of output files
         valid_symbols = [] # this array will be filled with symbols that dont currently have a matching output file

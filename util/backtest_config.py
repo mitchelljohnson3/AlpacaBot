@@ -1,11 +1,10 @@
 #fetch config
 #----------------------------------------------------------------------
 #Symbols to analyze
-SYMBOLS_TO_TEST = ["AAPL", "MSFT"]
-#RFC-3339 Format
-DATE_START = "2020-01-01T17:30:00+00:00"
-#RFC-3339 Format
-DATE_END = "2021-01-01T00:00:00+00:00"
+SYMBOLS_TO_TEST = ["AAPL"]
+#YEAR-MONTH-DAY Format
+DATE_START = "2020-01-01"
+DATE_END = "2021-01-01"
 #1-10000
 LIMIT = 10000
 #1Min, 1Hour, 1Day
