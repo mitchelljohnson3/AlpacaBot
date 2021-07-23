@@ -40,7 +40,10 @@ class fetch():
     
     def write_json_to_csv(self, path, bar_data):
         for bar in bar_data:
-            f_date = bar['t'].split('T')[0] # remove time stamp from date
+            date_time = bar['t'].split('T') # split the date by T to separate date and time
+            f_date = date_time[0] # store date in f_date
+            if (TIME_FRAME == "1Min" or TIME_FRAME == "1Hour"): # if time frame requires time to be present, add a formatted time to f_date
+                f_date += " " + date_time[1].split('Z')[0] # format time to be human readable and append
             formatted_data = '{},{},{},{},{},{}'.format(f_date, bar['o'], bar['h'], bar['l'], bar['c'], bar['v']) # convert dict to csv string
             io.appendToFile(path, formatted_data) # append to file
     
