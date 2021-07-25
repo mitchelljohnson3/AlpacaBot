@@ -1,5 +1,6 @@
 import sys
 sys.path.append('../util') # make modules in util folder available
+sys.path.append('../config') # make modules in util folder available
 import requests, json # requests lets us make web requests, json gives us tools that help dealing with json
 from global_config import * # import all global config variables
 from backtest_config import * # import all backtest specific variables
@@ -58,7 +59,7 @@ class fetch():
     
     def run(self):
         file_names = self.get_file_names(SYMBOLS_TO_TEST) # get all filenames of output files
-        valid_symbols = [] # this array will be filled with symbols that dont currently have a matching output file
+        valid_symbols = [] # this array will be filled with symbols that don't currently have a matching output file
         valid_file_names = [] # this array will hold all valid file names associated with each valid symbol
         for i in range(len(file_names)):
             if (io.fileExistsIn('./raw_symbol_data', file_names[i]) is False): # if file does not already exist..

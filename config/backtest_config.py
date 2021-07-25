@@ -1,11 +1,11 @@
 #fetch config
 #----------------------------------------------------------------------
-#Symbols to analyze
+#Symbols to analyze, separated by commas
 SYMBOLS_TO_TEST = ["AAPL"]
 #YEAR-MONTH-DAY Format
-DATE_START = "2020-01-01"
-DATE_END = "2021-01-01"
-#1-10000
+DATE_START = "2018-01-01"
+DATE_END = "2020-01-01"
+#1-10000 [DO NOT CHANGE]
 LIMIT = 10000
 #1Min, 1Hour, 1Day
 TIME_FRAME = "1Day"
@@ -13,8 +13,8 @@ TIME_FRAME = "1Day"
 
 #analysis config
 #----------------------------------------------------------------------
-SMA = [5, 20]
-EMA = [5, 20]
+SMA = []
+EMA = []
 RSI = True
 RSI_PERIOD = 14
 MACD = True

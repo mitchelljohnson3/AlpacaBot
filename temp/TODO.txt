@@ -1,0 +1,3 @@
+[ ] finish EMA, RSI and MACD indicators
+[ ] finish backtest module
+[ ] find a way to import all modules from a folder. I want to import all strategy modules in the strategies folder into run_backtest.py
