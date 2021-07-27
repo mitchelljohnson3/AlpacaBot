@@ -4,6 +4,7 @@ sys.path.append('../config') # make modules in util folder available
 from global_config import * # import all global config variables
 from backtest_config import * # import all backtest specific variables
 import file_io as io # file_io lets us write and read to files
+import util as util # utility functions
 
 class analysis():
     def __init__(self, file_names):
@@ -29,6 +30,8 @@ class analysis():
             self.INDICATORS.append("MACD") # append MACD
             self.INDICATORS.append("MACDSig") # append MACD signal line
             self.INDICATORS.append("MACDHist") # append MACD histogram
+        self.INDICATORS.append("Split") # append stock split column
+        self.INDICATORS.append("Dividend") # sppend stock dividend column
 
     def fill_raw_data(self, raw_data_file_names):
         for filename in raw_data_file_names: # reads data in from csv file, converts to a list of objects
@@ -57,6 +60,7 @@ class analysis():
         file_names = [] # empty list to hold all file names of analyzed data
         indicators = "" # empty string to hold all indicators
         for ind in self.INDICATORS:
+            if (ind in DO_NOT_INCLUDE_IN_FILENAME): continue # don't include certain symbol in filename
             indicators += "%" + ind # append all indicators separated by a '%'
         for i in range(len(raw_data_file_names)):
             new_filename = raw_data_file_names[i].split('.')[0] # isolate just the file name without the .csv
@@ -85,6 +89,8 @@ class analysis():
             if (macdsig != 0.0): self.setCurrent('MACDSig', macdsig)
             macdhist = self.calculateMACDHist()
             if (macdhist != 0.0): self.setCurrent('MACDHist', macdhist)
+        split = self.checkForSplit() # check for a stock split and append to current bar object
+        self.setCurrent('Split', split)
 
     def calculateSMA(self, period):
         if (self.index < (period - 1)): return 0.0 # if not enough data to calculate with this period, return 0.0
@@ -133,6 +139,29 @@ class analysis():
         newMACDHist = self.getCurrent('MACD') - self.getCurrent('MACDSig') # calculate new MACDHist
         return round(newMACDHist, 2) # return new MACDHist
 
+    def checkForSplit(self):
+        if (self.index == 0): return "/" # prevent negative indexing
+        threshold = 15 # numerator and denominator of ratio must be within threshold% of eachother
+        prevClose = self.getIndex(self.index - 1, 'c') # get previous close
+        currOpen = self.getCurrent('o') # get current open
+        increase = prevClose < currOpen
+        ratio = round((currOpen / prevClose), 3) if increase else round((prevClose / currOpen), 3)
+        cast = round(ratio) # round ratio to the nearest whole number
+        change = round(util.get_change(cast, ratio), 2) # find the percent difference between them
+        num = ratio # numerator is ratio
+        den = 1 # denominator is set to 1 be default
+        if(change > threshold): # if the change is greater than the threshold
+            while True: # continually increase factor until a whole number is reached
+                num += num
+                num_cast = round(num)
+                den += 1
+                change = util.get_change(num, num_cast)
+                if (change <= threshold): break # if a whole number with a difference less than the threshold is found, break
+        num = round(num)
+        if (num == 1 and den == 1): return "/" # if num and den are 1, neither split or dividend
+        if (increase): return str(den) + "/" + str(num) # if price per share increase, report as dividend
+        return str(num) + "/" + str(den) # if price per share dropped, report as split
+
     def getCurrent(self, indicator): # gets current value of 'indicator'
         return self.RAW_DATA[self.symbol_index][self.index][indicator]
 
@@ -144,11 +173,11 @@ class analysis():
 
     def output_analyzed_data(self, output_file_names): # outputs all analyzed data in raw_data to output files
         for i in range(len(output_file_names)):
-            path = self.setup_fileheader(output_file_names[i]) # set up file header and recieve path to created file
+            path = self.setup_fileheader(output_file_names[i]) # set up file header and receive path to created file
             for j in range(len(self.RAW_DATA[i])):
+                for ind in DO_NOT_INCLUDE_IN_DATA: self.RAW_DATA[i][j].pop(ind) # remove indicators from object
                 data_list = list(self.RAW_DATA[i][j].values())
-                for k in range(len(data_list)): 
-                    data_list[k] = str(data_list[k]) # cast values to strings
+                for k in range(len(data_list)): data_list[k] = str(data_list[k]) # cast values to strings
                 s = ","
                 data = s.join(data_list)
                 io.appendToFile(path, data) # append data to file
@@ -156,7 +185,9 @@ class analysis():
     def setup_fileheader(self, file_name): # writes a header to the top of the file
         path = './analyzed_data/' + file_name
         header = 'Date,Open,High,Low,Close,Volume'
-        for ind in self.INDICATORS: header += ',' + ind # append all indicators to header
+        for ind in self.INDICATORS: 
+            if (ind in DO_NOT_INCLUDE_IN_DATA): continue # don't write items in doNotInclude to output file
+            header += ',' + ind # append all indicators to header
         io.writeToFile(path, header) # write header to file
         return path
 

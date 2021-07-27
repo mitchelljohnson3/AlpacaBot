@@ -14,16 +14,21 @@ def graph_a(data_file_name):
     rows=3, 
     cols=1, 
     subplot_titles=(f"{symbol} Candlestick", "RSI", "MACD"))
-    #create candlestick chart using with x being Date, and the candlesticks made using AAPL.Open, AAPL.High, AAPL.Low, AAPL.Close
-    fig.append_trace(   
-        go.Candlestick(x=df['Date'],
-            open=df['Open'],
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
-            name=('Candle')
-                    ),row=1, col=1)
-    fig.update_xaxes(row=1, col=1, rangeslider_visible=False)
+    #create candlestick chart
+    if (CANDLE_OR_SIMPLE):
+        fig.append_trace(   
+            go.Candlestick(x=df['Date'],
+                open=df['Open'],
+                high=df['High'],
+                low=df['Low'],
+                close=df['Close'],
+                name=('Candle')
+                        ),row=1, col=1)
+        fig.update_xaxes(row=1, col=1, rangeslider_visible=False)
+    #or create a simpleifed price chart
+    else: 
+        fig.append_trace(go.Scatter(x=df['Date'], y=df[(
+                'Close')], text="Price", name="Price", line=dict(color='rgb(0, 0, 0)')), row=1, col=1)
     #adds RSI indicator and overbought and underbought signals
     if (RSI):
         fig.append_trace(go.Scatter(x=df['Date'], y=df["RSI"], text="RSI", name="RSI", line=dict(color='rgb(0, 0, 0)')), row=2, col=1)
@@ -32,6 +37,8 @@ def graph_a(data_file_name):
         fig.append_trace(go.Scatter(x=df['Date'], y=df["MACD"], text="MACD", name="MACD", line=dict(color='rgb(0, 128, 0)')), row=3, col=1)
         fig.append_trace(go.Scatter(x=df['Date'], y=df["MACDSig"], text="MACD Signal", name="MACD Signal", line=dict(color='rgb(255, 0, 0)')), row=3, col=1)
         fig.append_trace(go.Bar(x=df['Date'], y=df["MACDHist"], text="MACD Histogram", name="MACD Histogram"), row=3, col=1)
+    #add split and dividend signals to chart
+    
     #show plot, opens in browser
     fig.show()
 

@@ -18,12 +18,12 @@ analysis.py
 	- this class will keep track of its current index in the array
 	- run through the entirety of the data array, and add to each object the desired indicators like so:
 	{
-      		"t": "2020-01-02T05:00:00Z",
-      		"o": 296.24,
-      		"h": 300.6,
-      		"l": 295.19,
-      		"c": 300.35,
-      		"v": 33920004
+      	"t": "2020-01-02T05:00:00Z",
+      	"o": 296.24,
+      	"h": 300.6,
+      	"l": 295.19,
+      	"c": 300.35,
+      	"v": 33920004,
 		"SMA5": 283.4,
 		"EMA5": 301.4
 		"RSI": 0.0
