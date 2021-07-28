@@ -89,8 +89,19 @@ class analysis():
             if (macdsig != 0.0): self.setCurrent('MACDSig', macdsig)
             macdhist = self.calculateMACDHist()
             if (macdhist != 0.0): self.setCurrent('MACDHist', macdhist)
-        split = self.checkForSplit() # check for a stock split and append to current bar object
-        self.setCurrent('Split', split)
+        fraction = self.getPriceRatio() # get price ratio between last close and current open
+        test = self.splitORdividend(fraction) # did a split, dividend, or nothing occur?
+        if (test == 0): 
+            self.setCurrent("Split", "/")
+            self.setCurrent("Dividend", "/")
+        if (test == 1):
+            self.setCurrent("Split", self.getCurrent('o'))
+            #self.setCurrent("Split", fraction)
+            self.setCurrent("Dividend", "/")
+        if (test == 2):
+            self.setCurrent("Split", "/")
+            #self.setCurrent("Dividend", fraction)
+            self.setCurrent("Dividend", self.getCurrent('o'))
 
     def calculateSMA(self, period):
         if (self.index < (period - 1)): return 0.0 # if not enough data to calculate with this period, return 0.0
@@ -139,7 +150,15 @@ class analysis():
         newMACDHist = self.getCurrent('MACD') - self.getCurrent('MACDSig') # calculate new MACDHist
         return round(newMACDHist, 2) # return new MACDHist
 
-    def checkForSplit(self):
+    def splitORdividend(self, fraction):
+        if (len(fraction) == 1): return 0 # signify neither
+        values = fraction.split('/')
+        num = int(values[0])
+        den = int(values[1])
+        if (num > den): return 1 # signify a split
+        if (num < den): return 2 # signify a dividend
+
+    def getPriceRatio(self):
         if (self.index == 0): return "/" # prevent negative indexing
         threshold = 15 # numerator and denominator of ratio must be within threshold% of eachother
         prevClose = self.getIndex(self.index - 1, 'c') # get previous close

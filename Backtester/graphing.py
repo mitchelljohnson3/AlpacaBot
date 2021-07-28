@@ -38,7 +38,15 @@ def graph_a(data_file_name):
         fig.append_trace(go.Scatter(x=df['Date'], y=df["MACDSig"], text="MACD Signal", name="MACD Signal", line=dict(color='rgb(255, 0, 0)')), row=3, col=1)
         fig.append_trace(go.Bar(x=df['Date'], y=df["MACDHist"], text="MACD Histogram", name="MACD Histogram"), row=3, col=1)
     #add split and dividend signals to chart
-    
+    splits = df[('Split')]
+    dividends = df[('Dividend')]
+    print(splits)
+    print(dividends)
+    fig.append_trace(go.Scatter(x=df['Date'], y=df[(
+                'Split')], text="Split", name="Split", mode="markers", line=dict(color='rgb(0, 128, 0)')), row=1, col=1)
+    fig.append_trace(go.Scatter(x=df['Date'], y=df[(
+                'Dividend')], text="Dividend", name="Dividend", mode="markers", line=dict(color='rgb(255, 0, 0)')), row=1, col=1)
+
     #show plot, opens in browser
     fig.show()
 

@@ -3,6 +3,15 @@ from analysis import analysis # calculates desired indicators
 from backtest import backtest # performs a backtest using a strategy
 from graphing import * # functions that allow graphing of analysis and backtest data
 import time # used to monitor code
+import os # gives access to file system
+
+#check if core directories are absent, and if so create them
+analyzed_data_path = "./analyzed_data"
+backtest_results_path = "./backtest_results"
+raw_symbol_data_path = "./raw_symbol_data"
+if ((os.path.isdir(analyzed_data_path)) is False): os.mkdir(analyzed_data_path)
+if ((os.path.isdir(backtest_results_path)) is False): os.mkdir(backtest_results_path)
+if ((os.path.isdir(raw_symbol_data_path)) is False): os.mkdir(raw_symbol_data_path)
 
 # fetch raw symbol data
 fetch_time_start = time.perf_counter()
