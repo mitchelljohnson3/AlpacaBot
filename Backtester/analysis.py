@@ -30,8 +30,6 @@ class analysis():
             self.INDICATORS.append("MACD") # append MACD
             self.INDICATORS.append("MACDSig") # append MACD signal line
             self.INDICATORS.append("MACDHist") # append MACD histogram
-        self.INDICATORS.append("Split") # append stock split column
-        self.INDICATORS.append("Dividend") # sppend stock dividend column
 
     def fill_raw_data(self, raw_data_file_names):
         for filename in raw_data_file_names: # reads data in from csv file, converts to a list of objects
@@ -89,19 +87,6 @@ class analysis():
             if (macdsig != 0.0): self.setCurrent('MACDSig', macdsig)
             macdhist = self.calculateMACDHist()
             if (macdhist != 0.0): self.setCurrent('MACDHist', macdhist)
-        fraction = self.getPriceRatio() # get price ratio between last close and current open
-        test = self.splitORdividend(fraction) # did a split, dividend, or nothing occur?
-        if (test == 0): 
-            self.setCurrent("Split", "/")
-            self.setCurrent("Dividend", "/")
-        if (test == 1):
-            self.setCurrent("Split", self.getCurrent('o'))
-            #self.setCurrent("Split", fraction)
-            self.setCurrent("Dividend", "/")
-        if (test == 2):
-            self.setCurrent("Split", "/")
-            #self.setCurrent("Dividend", fraction)
-            self.setCurrent("Dividend", self.getCurrent('o'))
 
     def calculateSMA(self, period):
         if (self.index < (period - 1)): return 0.0 # if not enough data to calculate with this period, return 0.0
@@ -149,37 +134,6 @@ class analysis():
         if (self.index < 34): return 0.0 # MACDHist is the difference between MACD and MACDSig, both are required to calculate
         newMACDHist = self.getCurrent('MACD') - self.getCurrent('MACDSig') # calculate new MACDHist
         return round(newMACDHist, 2) # return new MACDHist
-
-    def splitORdividend(self, fraction):
-        if (len(fraction) == 1): return 0 # signify neither
-        values = fraction.split('/')
-        num = int(values[0])
-        den = int(values[1])
-        if (num > den): return 1 # signify a split
-        if (num < den): return 2 # signify a dividend
-
-    def getPriceRatio(self):
-        if (self.index == 0): return "/" # prevent negative indexing
-        threshold = 15 # numerator and denominator of ratio must be within threshold% of eachother
-        prevClose = self.getIndex(self.index - 1, 'c') # get previous close
-        currOpen = self.getCurrent('o') # get current open
-        increase = prevClose < currOpen
-        ratio = round((currOpen / prevClose), 3) if increase else round((prevClose / currOpen), 3)
-        cast = round(ratio) # round ratio to the nearest whole number
-        change = round(util.get_change(cast, ratio), 2) # find the percent difference between them
-        num = ratio # numerator is ratio
-        den = 1 # denominator is set to 1 be default
-        if(change > threshold): # if the change is greater than the threshold
-            while True: # continually increase factor until a whole number is reached
-                num += num
-                num_cast = round(num)
-                den += 1
-                change = util.get_change(num, num_cast)
-                if (change <= threshold): break # if a whole number with a difference less than the threshold is found, break
-        num = round(num)
-        if (num == 1 and den == 1): return "/" # if num and den are 1, neither split or dividend
-        if (increase): return str(den) + "/" + str(num) # if price per share increase, report as dividend
-        return str(num) + "/" + str(den) # if price per share dropped, report as split
 
     def getCurrent(self, indicator): # gets current value of 'indicator'
         return self.RAW_DATA[self.symbol_index][self.index][indicator]

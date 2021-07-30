@@ -8,11 +8,16 @@ from backtest_config import *  # import config settings
 
 
 def graph_a(data_file_name):
+    # Creating Subplots
+    plt.style.use('ggplot')
+    num_plots = 1
+    if (RSI): num_plots += 1
+    if (MACD): num_plots += 1
+    fig, ax = plt.subplots(num_plots)
+
     # read in data from csv file
     data = pd.read_csv('./analyzed_data/' + data_file_name) # read csv file
     symbol = data_file_name.split('%')[0]
-
-    plt.style.use('ggplot')
 
     # Extracting Data for plotting
     ohlc = data.loc[:, ['Date', 'Open', 'High', 'Low', 'Close']]
@@ -20,11 +25,8 @@ def graph_a(data_file_name):
     ohlc['Date'] = ohlc['Date'].apply(mpl_dates.date2num)
     ohlc = ohlc.astype(float)
 
-    # Creating Subplots
-    num_plots = 1
-    if (RSI): num_plots += 1
-    if (MACD): num_plots += 1
-    fig, ax = plt.subplots(num_plots)
+    # setup main title
+    fig.suptitle('{} {}'.format(symbol, TIME_FRAME))
 
     # Formatting Date
     date_format = mpl_dates.DateFormatter('%m-%d-%Y')
@@ -37,9 +39,7 @@ def graph_a(data_file_name):
     ax[0].set_ylabel('Price')
     ax[0].xaxis.set_major_formatter(date_format)
 
-    # setup main title
-    fig.suptitle('{} {}'.format(symbol, TIME_FRAME))
-
+    # creating RSI chart if enabled
     if (RSI):
         _data = data.loc[:, ['RSI']]
         ax[1].set_xlabel('Date')
@@ -51,6 +51,7 @@ def graph_a(data_file_name):
         labels = ["RSI", "Overbought Signal", "Underbought Signal"]
         ax[1].legend(labels)
 
+    # creating MACD chart if enabled
     if (MACD):
         _data = (data.loc[:, ['MACD', 'MACDSig', 'MACDHist']])
         ax[2].set_xlabel('Date')
@@ -63,9 +64,6 @@ def graph_a(data_file_name):
         ax[2].legend(labels)
         
     plt.show()
-
-
-
 
 def graph_b(filename):
     pass
