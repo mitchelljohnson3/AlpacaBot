@@ -1,9 +1,9 @@
 #fetch config
 #----------------------------------------------------------------------
 #Symbols to analyze, separated by commas
-SYMBOLS_TO_TEST = ["ANY"]
+SYMBOLS_TO_TEST = ["AMZN", "MSFT"]
 #YEAR-MONTH-DAY Format
-DATE_START = "2015-01-01"
+DATE_START = "2020-01-01"
 DATE_END = "2021-01-01"
 #1-10000 [DO NOT CHANGE]
 LIMIT = 10000
@@ -27,5 +27,5 @@ MACD = True
 
 #backtest config
 #----------------------------------------------------------------------
-
+STARTING_FUNDS = 1000
 #----------------------------------------------------------------------

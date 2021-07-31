@@ -1,7 +1,9 @@
 [x] finish EMA, RSI and MACD indicators
-[x] add a column to analysis files that signifies splits: what type of split? 1/4 meaning if i had 1 share at $100, after a 4/1 split, id have 4 shares at $25
-[x] show splits and dividens with the fraction on the price chart somehow
 [x] if core directories are missing from file structure, program should create those directories before running
-[ ] reset indicators after a split or dividend
-[ ] finish backtest module
-[ ] find a way to import all modules from a folder. I want to import all strategy modules in the strategies folder into run_backtest.py
+[x] finish backtest module
+[x] find a way to import all modules from a folder. I want to import all strategy modules in the strategies folder into run_backtest.py
+[ ] make buy orders buy at the next open price, instead of the current close
+[ ] create backtest summary report that averages results from all symbols tested with strategy, but also put the information in a file, each 
+line being a certain symbol. EX: 
+Symbol,SuccessPercentage,PercentGain,LargestPercentLoss,LargestPercentGain
+AAPL,65.8,32.5,2.5,1.2

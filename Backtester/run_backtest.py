@@ -2,6 +2,7 @@ from fetch import fetch # fetches raw symbol data
 from analysis import analysis # calculates desired indicators
 from backtest import backtest # performs a backtest using a strategy
 from graphing import * # functions that allow graphing of analysis and backtest data
+from strategies import * # strategy functions used for backtesting
 import time # used to monitor code
 import os # gives access to file system
 
@@ -31,8 +32,12 @@ print(f"Analyzed symbol data in {diff:0.1f} seconds.")
 
 # backtest strategy on analyzed data
 backtest_time_start = time.perf_counter()
-# backtestModule = backtest(analyzed_data_file_names)
-backtest_results_file_names = []
+data = backtest(analyzed_data_file_names)
+data.init()
+while True:
+    simpleMovingAverageCrossover(data) # run backtest strategy
+    if(data.update() == False): break # exit loop once backtesting is complete
+backtest_results_file_names = data.OUTPUT_FILE_NAMES
 backtest_time_end = time.perf_counter()
 diff = backtest_time_end - backtest_time_start
 print(f"Backtested strategy in {diff:0.1f} seconds.")
@@ -43,12 +48,7 @@ print(f"Backtested strategy in {diff:0.1f} seconds.")
 # largest percent loss
 # largest percent gain
 
-# ask to graph analysis data
-displayAnalysisGraph = input("Graph analysis data? [y/n]: ")
-if (displayAnalysisGraph == "y"):
-    for filename in analyzed_data_file_names: 
-        graph_a(filename)
-
-# ask to graph backtest results
-displayBacktestGraph = input("Graph backtest data? [y/n]: ")
-if (displayBacktestGraph == "y"):graph_b(filename)
+# ask to graph analyzed data and results
+displayGraphs = input("Graph analyzed data and results? [y/n]: ")
+if (displayGraphs == "y"):
+    graph(analyzed_data_file_names, backtest_results_file_names)
