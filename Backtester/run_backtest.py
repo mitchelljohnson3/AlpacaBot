@@ -10,9 +10,11 @@ import os # gives access to file system
 analyzed_data_path = "./analyzed_data"
 backtest_results_path = "./backtest_results"
 raw_symbol_data_path = "./raw_symbol_data"
+backtest_summary_path = "./backtest_summary"
 if ((os.path.isdir(analyzed_data_path)) is False): os.mkdir(analyzed_data_path)
 if ((os.path.isdir(backtest_results_path)) is False): os.mkdir(backtest_results_path)
 if ((os.path.isdir(raw_symbol_data_path)) is False): os.mkdir(raw_symbol_data_path)
+if ((os.path.isdir(backtest_summary_path)) is False): os.mkdir(backtest_summary_path)
 
 # fetch raw symbol data
 fetch_time_start = time.perf_counter()
@@ -41,12 +43,7 @@ backtest_results_file_names = data.OUTPUT_FILE_NAMES
 backtest_time_end = time.perf_counter()
 diff = backtest_time_end - backtest_time_start
 print(f"Backtested strategy in {diff:0.1f} seconds.")
-
-# backtest results
-# successful trade percentage
-# total percent gain
-# largest percent loss
-# largest percent gain
+data.print_summary()
 
 # ask to graph analyzed data and results
 displayGraphs = input("Graph analyzed data and results? [y/n]: ")
